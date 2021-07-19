@@ -37,6 +37,7 @@ const getBlob = async (file, isFile) => {
 }
 
 /* control class */
+/**/
 class ImageParse extends Controller {
 	async info() {
 		const { ctx, service } = this;
