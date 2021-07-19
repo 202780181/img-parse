@@ -24,8 +24,16 @@ module.exports = appInfo => {
 	config.security = {
 		csrf: {
 			enable: false,
-		}
+		},
+		 // 白名单
+		 domainWhiteList: ['*']
  }
+
+ // 跨域配置
+ config.cors = {
+  origin: '*',
+  allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH,OPTIONS'
+};
 
   // add your user config here
   const userConfig = {
