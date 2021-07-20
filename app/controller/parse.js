@@ -1,72 +1,45 @@
 const fs = require('fs');
-const https = require('https');
+const path = require('path');
 const Controller = require('egg').Controller;
-const tinify = require("tinify");
-tinify.key = "klrz4JNlbfG4w4MrvBmBh2vcV1X3b92P";
-// tinify.proxy = "http://localhost:7001/api/parse";
+const pump = require('mz-modules/pump');
+const { ImagePool } = require('@squoosh/lib');
+const imagePool = new ImagePool();
 
-/* tinify file upload parse */
-const task = (url) => {
-	const source = tinify.fromUrl(url);
-	source.toFile("optimized.jpg");
-	return source._url;
-}
-
-
-/* internal url to file stream */
-const getBlob = async (file, isFile) => {
-	const source = await task(file, isFile);
-	const type = source.split('.')[1];
-	let fileStream = new Promise((resolve, reject) => {
-		https.get(source, res => {
-			// 二进制
-			res.setEncoding('binary');
-			let files = '';
-			// 加载到内存
-			res.on('data', chunk => {
-				files += chunk;
-			}).on('end', () => {
-				resolve(files);
-			})
-		})
-	})
-	let binaryFiles = await fileStream.then(data => {
-		return data
-	})
-	return binaryFiles
-}
 
 /* control class */
 /**/
 class ImageParse extends Controller {
 	async info() {
 		const { ctx, service } = this;
+		const {file, isFile = false, opt = {}} = ctx.request.body;
 		let status = 200;
-		if(this.ctx.get('Content-Type').startsWith('multipart/')) {
-			let stream;
-			try {
-				stream = await ctx.getFileStream();
-				console.log('是一个文件');
-				console.log(stream);
-				console.log(stream.mimeType);
-			} catch (err) {
-				status = 500;
+		if(ctx.get('Content-Type').startsWith('multipart/')) {
+			const stream = await ctx.getFileStream();
+			const filename = encodeURIComponent(stream.filename);
+			const target = path.join(this.config.baseDir, 'app/public', filename);
+			const writeStream = fs.createWriteStream(target);
+			await pump(stream, writeStream);
+
+			const url = path.resolve(this.config.baseDir) +'/app/public/' + filename;
+			const imagePath = url;
+			const image = imagePool.ingestImage(url);
+			await image.decoded;
+			const preprocessOptions = {} = opt;
+			await image.preprocess(preprocessOptions);
+			const encodeOptions = {
+				mozjpeg: {}, 
+				jxl: {
+					quality: 90,
+				},
 			}
-		} else {
-			const {file, isFile = false} = ctx.request.body;
-			let fileStream;
-			if(isFile) {
-				// Blob Object
-				fileStream = await getBlob(file, isFile);
-			} else {
-				// url address
-				fileStream = await task(file);
-			}
-			ctx.status = status;
-			ctx.body = {
-				file: fileStream,
-				state: 0
-			}
+			await image.encode(encodeOptions);
+			await imagePool.close();
+			const rawEncodedImage = (await image.encodedWith.mozjpeg).binary;
+			const writeTarget = path.join(this.config.baseDir, 'app/public', 'image.jpg');
+			fs.writeFile(writeTarget, rawEncodedImage, err => {
+				if(err) throw Error(err)
+			});
+			// ctx.body = image
 		}
 	}
 }
