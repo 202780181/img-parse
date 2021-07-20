@@ -12,7 +12,8 @@ class ImageParse extends Controller {
   async info() {
     const { ctx } = this;
     const { file, isFile = false, opt = {} } = ctx.request.body;
-    if (ctx.get('Content-Type').startsWith('multipart/')) {
+    if (ctx.get('Content-Type')
+      .startsWith('multipart/')) {
       const stream = await ctx.getFileStream();
       const filename = encodeURIComponent(stream.filename);
       const target = path.join(this.config.baseDir, 'app/public', filename);
@@ -22,6 +23,7 @@ class ImageParse extends Controller {
       const url = path.resolve(this.config.baseDir) + '/app/public/' + filename;
       const image = imagePool.ingestImage(url);
       await image.decoded;
+      // eslint-disable-next-line no-empty-pattern
       const preprocessOptions = {} = opt;
       await image.preprocess(preprocessOptions);
       const encodeOptions = {
@@ -38,16 +40,18 @@ class ImageParse extends Controller {
         if (err) throw Error(err);
       });
 
+      // eslint-disable-next-line no-empty
       if (isFile) {
 
       }
       // ctx.body = image
     }
     // 图片上传
+    // eslint-disable-next-line no-empty
     if (file) {
 
     }
-
+  }
 }
 
 module.exports = ImageParse;
