@@ -1,7 +1,11 @@
-module.exports = appInfo => {
-	return {
-		logger: {
-			dir: '/logs',
-		},
-	}
-}
+'use strict';
+
+
+/* appInfo */
+module.exports = () => {
+  return {
+    logger: {
+      dir: '/logs',
+    },
+  };
+};

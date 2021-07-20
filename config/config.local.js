@@ -1,8 +1,10 @@
-const path = require('path');
-module.exports = appInfo => {
-	return {
-		logger: {
-			dir: '/Users/aaron/logs/image-parse-logs',
-		},
-	}
-}
+'use strict';
+
+/* appInfo */
+module.exports = () => {
+  return {
+    logger: {
+      dir: '/Users/aaron/logs/image-parse-logs',
+    },
+  };
+};

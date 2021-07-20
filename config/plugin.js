@@ -6,8 +6,8 @@ module.exports = {
   static: {
     enable: true,
   },
-	cors: {
-		enable: true,
-		package: 'egg-cors',
-	}
+  cors: {
+    enable: true,
+    package: 'egg-cors',
+  },
 };
