@@ -11,6 +11,7 @@
     "egg": "^2.15.1",
     "egg-cors": "^2.2.3",
     "egg-scripts": "^2.11.0",
+    "koa-is-json": "^1.0.0",
     "tinify": "^1.6.0-beta.2"
   },
   "devDependencies": {

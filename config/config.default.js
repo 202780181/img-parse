@@ -18,15 +18,19 @@ module.exports = appInfo => {
   config.keys = appInfo.name + '_1626660796350_6881';
 
   // add your middleware config here
-  config.middleware = [];
+  config.middleware = [ 'gzip' ];
 
+  // add response header gzip
+  config.gzip = {
+    threshold: 1024, // 小于 1k 的响应体不压缩
+  };
   // close csrf security
   config.security = {
     csrf: {
       enable: false,
     },
-		 // 白名单
-		 domainWhiteList: [ '*' ],
+    // 白名单
+    domainWhiteList: [ '*' ],
   };
 
   // 跨域配置
