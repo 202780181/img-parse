@@ -32,6 +32,7 @@ module.exports = appInfo => {
     // }
   };
 
+
   // 文件支持的白名单
   // config.multipart = {
   //   whitelist: [

@@ -10,27 +10,24 @@ const imagePool = new ImagePool();
 
 /* */
 class ImageParseService extends Service {
-  async compress(param) {
+  async compress(dir, isStream) {
+    isStream = Boolean(isStream);
     const { ctx, config } = this;
-		const { file, isStream } = param;
-    console.log('接受到解析的参数======>');
-    console.log(param);
     let result = { file: null };
     if (ctx.get('Content-Type').startsWith('multipart/')) {
-      const stream = await ctx.getFileStream();
-      console.log('文件流======>');
-      console.log(stream);
-      const filename = encodeURIComponent(stream.filename);
-      const target = path.join(config.baseDir, 'app/public', filename);
-      const writeStream = fs.createWriteStream(target);
-      await pump(stream, writeStream);
 
-      const url = path.resolve(config.baseDir) + '/app/public/' + filename;
-      const image = imagePool.ingestImage(url);
+      // const filename = encodeURIComponent(stream.filename);
+      // const target = path.join(config.baseDir, 'app/public', date + filename);
+      // await pump(stream, writeStream);
+      console.log('文件位置--------->');
+      console.log(dir);
+
+      // const url = path.resolve(config.baseDir) + '/app/public/' + date + filename;
+      const image = imagePool.ingestImage(dir);
       await image.decoded;
       const preprocessOptions = {};
       const encodeOptions = {
-        webp: {},
+        mozjpeg: {},
         jxl: {
           quality: 90,
         },
@@ -38,19 +35,15 @@ class ImageParseService extends Service {
       await image.preprocess(preprocessOptions);
       await image.encode(encodeOptions);
       await imagePool.close();
-      const rawEncodedImage = (await image.encodedWith.webp).binary;
+      const rawEncodedImage = (await image.encodedWith.mozjpeg).binary;
       if (isStream) {
+        console.log('返回文件流-------->');
         result = {
           file: rawEncodedImage,
         };
       } else {
-        const date = new Date().getTime();
-        const writeDir = path.join(config.baseDir, 'app/public', `${date}.webp`);
-        await fs.writeFile(writeDir, rawEncodedImage, err => {
-          if (err) new Error(JSON.stringify(err));
-        });
         result = {
-          file: `${config.baseDir}app/public${date}.webp`,
+          file: `${dir}`,
         };
       }
     }

@@ -1,6 +1,8 @@
 'use strict';
 
-// eslint-disable-next-line strict
+const fs = require('fs');
+const path = require('path');
+const pump = require('mz-modules/pump');
 const Controller = require('egg').Controller;
 const sendToWormhole = require('stream-wormhole');
 
@@ -8,10 +10,12 @@ const sendToWormhole = require('stream-wormhole');
 class ImageParse extends Controller {
   async info() {
     console.log('接受请求======>');
-    const { ctx, service } = this;
+    const { ctx, service, config } = this;
     const parts = ctx.multipart();
+		const date = new Date().getTime();
     let part;
     const param = {};
+		let target = null;
     while ((part = await parts()) != null) {
       if (part.length) {
       	  param[part[0]] = part[1];
@@ -19,14 +23,28 @@ class ImageParse extends Controller {
         if (!part.filename) {
           return;
         }
-        /* stream-wormhole 消费 stream 否则会导致while 任务卡顿 */
-        await sendToWormhole(part);
-        param.file = part;
+
+				const stream = part;
+				const filename = encodeURIComponent(stream.filename);
+				target = path.join(config.baseDir, 'app/public', date + filename);
+				
+				/* 以二进制写入否则图片无法显示 */
+				const writeStream = fs.createWriteStream(target , {
+					flags: 'w',  
+					autoClose: true,
+					encoding: 'binary'
+				});
+				await pump(stream, writeStream);
+				 /* stream-wormhole 消费 stream 否则会导致while 任务卡顿 */
+				await sendToWormhole(part);
       }
     }
+	
 
     console.log('参数解析完毕！');
-    const res = await service.parse.compress(param);
+		console.log(param);
+		const isStream = param.stream || false;
+    const res = await service.parse.compress(target, isStream);
     ctx.body = res;
   }
 }
