@@ -17,8 +17,32 @@ module.exports = appInfo => {
   // use for cookie sign key, should change to your own and keep security
   config.keys = appInfo.name + '_1626660796350_6881';
 
+  // ip address proxy
+  config.proxy = true;
+
   // add your middleware config here
   config.middleware = [ 'gzip' ];
+
+  // bodyParser
+  config.bodyParser = {
+    enable: true,
+    jsonLimit: '10mb',
+		// extendTypes: {
+    //   form: ['multipart/form-data']
+    // }
+  };
+
+  // 文件支持的白名单
+  // config.multipart = {
+  //   whitelist: [
+  //     '.jpg',
+  //     '.jpeg',
+  //     '.png',
+  //     '.gif',
+  //     '.bmp',
+  //     '.webp',
+  //   ],
+  // };
 
   // add response header gzip
   config.gzip = {
