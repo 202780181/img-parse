@@ -27,23 +27,7 @@ module.exports = appInfo => {
   config.bodyParser = {
     enable: true,
     jsonLimit: '10mb',
-		// extendTypes: {
-    //   form: ['multipart/form-data']
-    // }
   };
-
-
-  // 文件支持的白名单
-  // config.multipart = {
-  //   whitelist: [
-  //     '.jpg',
-  //     '.jpeg',
-  //     '.png',
-  //     '.gif',
-  //     '.bmp',
-  //     '.webp',
-  //   ],
-  // };
 
   // add response header gzip
   config.gzip = {
@@ -63,6 +47,13 @@ module.exports = appInfo => {
     origin: '*',
     allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH,OPTIONS',
   };
+
+  config.view = {
+    defaultViewEngine: 'nunjucks',
+    mapping: {
+      '.tpl': 'nunjucks'
+    },
+  }
 
   // add your user config here
   const userConfig = {

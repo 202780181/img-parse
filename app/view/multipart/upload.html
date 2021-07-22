@@ -16,18 +16,18 @@
 </head>
 <body>
 <div id="counter">
-
+    <div>{{msg}}</div>
 </div>
 </body>
 <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.14/vue.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/vant/2.12.24/vant.min.js"></script>
 <script>
-  Vue.prototype.$axios = axios
+  Vue.prototype.$axios = axios;
   var app = new Vue({
     el: '#counter',
     data: {
-
+        msg: "这是vue渲染的内容"
     },
     methods: {
 
