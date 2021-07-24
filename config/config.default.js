@@ -29,6 +29,10 @@ module.exports = appInfo => {
     jsonLimit: '10mb',
   };
 
+  // config.multipart = {
+  //   mode: 'file',
+  // };
+
   // add response header gzip
   config.gzip = {
     threshold: 1024, // 小于 1k 的响应体不压缩
@@ -51,9 +55,9 @@ module.exports = appInfo => {
   config.view = {
     defaultViewEngine: 'nunjucks',
     mapping: {
-      '.tpl': 'nunjucks'
+      '.html': 'nunjucks',
     },
-  }
+  };
 
   // add your user config here
   const userConfig = {

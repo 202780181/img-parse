@@ -2,50 +2,70 @@
 
 const fs = require('fs');
 const path = require('path');
-const pump = require('mz-modules/pump');
 const Controller = require('egg').Controller;
 const sendToWormhole = require('stream-wormhole');
 
 /* control class */
 class ImageParse extends Controller {
   async info() {
-    console.log('接受请求======>');
-    const { ctx, service, config } = this;
+    const {
+      ctx,
+      service,
+      config,
+    } = this;
     const parts = ctx.multipart();
-    const date = new Date().getTime();
-    let part;
     const param = {};
-    let target = null;
+    let part = null;
+    let fileUrl = null;
+
     while ((part = await parts()) != null) {
       if (part.length) {
+        ctx.coreLogger.debug('[egg-multipart:storeMultipart] handle value part: %j', part);
         param[part[0]] = part[1];
       } else {
         if (!part.filename) {
-          return;
+          await sendToWormhole(part);
+          continue;
         }
+        const date = new Date().getTime();
+        const filename = encodeURIComponent(part.filename);
+        const target = path.join(config.baseDir, 'app/public', date + filename);
+        await new Promise((resolve, reject) => {
+          // 创建文件写入流
+          const remoteFileStrem = fs.createWriteStream(target);
+          // 以管道方式写入流
+          part.pipe(remoteFileStrem);
 
-        const stream = part;
-        const filename = encodeURIComponent(stream.filename);
-        target = path.join(config.baseDir, 'app/public', date + filename);
+          let errFlag;
+          // 监听error事件
+          remoteFileStrem.on('error', err => {
+            errFlag = true;
+            // 停止写入
+            sendToWormhole(part);
+            remoteFileStrem.destroy();
+            console.log(err);
+            reject(err);
+          });
 
-        /* 以二进制写入否则图片无法显示 */
-        const writeStream = fs.createWriteStream(target, {
-          flags: 'w',
-          autoClose: true,
-          encoding: 'binary'
+          // 监听写入完成事件
+          remoteFileStrem.on('finish', () => {
+            if (errFlag) return;
+            fileUrl = target;
+            resolve({
+              filename,
+              url: target,
+            });
+          });
         });
-        await pump(stream, writeStream);
-        /* stream-wormhole 消费 stream 否则会导致while 任务卡顿 */
-        await sendToWormhole(part);
       }
     }
 
 
     console.log('参数解析完毕！');
-    console.log(param);
-    const isStream = param.stream || false;
-    const res = await service.parse.compress(target, isStream);
-    ctx.body = res;
+    console.log(fileUrl);
+    ctx.logger.info('file writeStream success: ', param);
+    const isStream = param.isFile || true;
+    ctx.body = await service.parse.compress(fileUrl, isStream);
   }
 }
 

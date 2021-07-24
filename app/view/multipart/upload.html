@@ -1,37 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <title>测试文件上传</title>
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0">
-    <meta http-equiv="Cache-Control" content="max-age=180">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no, viewport-fit=cover">
-    <meta http-equiv="x-dns-prefetch-control" content="on">
-    <link href="https://cdn.bootcdn.net/ajax/libs/vant/2.12.24/index.min.css" rel="stylesheet">
+	<meta charset="UTF-8">
+	<title>测试文件上传</title>
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0">
+	<meta http-equiv="Cache-Control" content="max-age=180">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no, viewport-fit=cover">
+	<meta http-equiv="x-dns-prefetch-control" content="on">
+	<link href="https://cdn.bootcdn.net/ajax/libs/vant/2.12.24/index.min.css" rel="stylesheet">
 </head>
+
 <body>
-<div id="counter">
-    <div>{{msg}}</div>
-</div>
+	<div id="counter">
+		<div style="text-align: center;">
+			<div>文件上传</div>
+			<van-uploader v-model="fileList" multiple :after-read="uploadFile" :max-count="1" />
+		</div>
+	</div>
 </body>
 <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.14/vue.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/vant/2.12.24/vant.min.js"></script>
 <script>
-  Vue.prototype.$axios = axios;
-  var app = new Vue({
-    el: '#counter',
-    data: {
-        msg: "这是vue渲染的内容"
-    },
-    methods: {
-
-    }
-  })
+	Vue.prototype.$axios = axios;
+	var app = new Vue({
+		el: '#counter',
+		delimiters: ['${', '}'],
+		data: {
+			fileList: [],
+		},
+		methods: {
+			afterRead(file) {
+				file.status = 'uploading';
+				file.message = '上传中...';
+			},
+			async uploadFile(files) {
+				const {
+					file
+				} = files;
+				let formData = new FormData();
+				formData.append('file', file);
+				formData.append('isFile', "false");
+				let res = await this.$axios({
+					url: '/api/parse',
+					method: 'POST',
+					data: formData,
+				}).then(res => {
+					return res
+				})
+				console.log('响应数据------>');
+				console.log(res);
+			}
+		},
+		/* issue https://cn.vuejs.org/v2/api/#errorHandler */
+		errorHandler(err, vm, info) {
+			console.log(info);
+		}
+	})
 </script>
+
 </html>

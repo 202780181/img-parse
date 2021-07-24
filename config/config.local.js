@@ -9,7 +9,6 @@ module.exports = () => {
     webpack: {
       enable: true,
       package: 'egg-webpack',
-      webpackConfigList: require('@easy-team/easywebpack-vue').getWebpackConfig()
-    }
+    },
   };
 };
