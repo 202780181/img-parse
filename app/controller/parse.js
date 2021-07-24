@@ -30,6 +30,7 @@ class ImageParse extends Controller {
         const date = new Date().getTime();
         const filename = encodeURIComponent(part.filename);
         const target = path.join(config.baseDir, 'app/public', date + filename);
+        // eslint-disable-next-line no-loop-func
         await new Promise((resolve, reject) => {
           // 创建文件写入流
           const remoteFileStrem = fs.createWriteStream(target);
