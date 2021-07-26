@@ -1,7 +1,7 @@
 // eslint-disable-next-line strict
 const Service = require('egg').Service;
 const fs = require('fs');
-const Transport = require('egg-logger').Transport;
+
 const {
 	ImagePool,
 } = require('@squoosh/lib');
