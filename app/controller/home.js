@@ -5,15 +5,22 @@
 const Controller = require('egg').Controller;
 
 class HomeController extends Controller {
-  async index() {
-    const { ctx } = this;
-    await ctx.render('docs/index');
-  }
+	async index() {
+		const {
+			ctx
+		} = this;
+		await ctx.render('docs/index');
+	}
 
-  async upload() {
-    const { ctx } = this;
-    await ctx.render('multipart/upload');
-  }
+	/**
+	 * http request API
+	 */
+	async upload() {
+		const {
+			ctx
+		} = this;
+		await ctx.render('multipart/upload');
+	}
 }
 
 module.exports = HomeController;
