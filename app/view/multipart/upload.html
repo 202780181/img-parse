@@ -19,9 +19,22 @@
 <body>
 	<div id="counter">
 		<div style="text-align: center;">
-			<div>文件上传</div>
+			<div style="margin: 20px 0 10px auto;">文件上传</div>
 			<van-uploader v-model="fileList" multiple :after-read="uploadFile" :max-count="1" />
 		</div>
+		<div>
+			<div v-if="odlSize" style="text-align: center;margin-top: 20px;margin-bottom: 20px;">
+				<span style="color:#1890ff;margin-left: 20px;">原始大小: ${size}</span>
+				<span style="color:#92cc75;margin-left: 20px;">压缩后大小: ${odlSize}</span>
+				<span style="color:#eb2f96;margin-left: 20px;">压缩占比: ${percentage}%</span>
+			</div>
+		</div>
+		<div style="text-align: center;margin:20px auto">
+			<van-loading size="24px" v-if="active">压缩中..</van-loading>
+			<p v-if="error" style="font-size: 24px;color:#f5222d">压缩失败，服务异常！</p>
+			<img id="img1" :src="url" style="width:70%;">
+		</div>
+	</div>
 	</div>
 </body>
 <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.14/vue.min.js"></script>
@@ -34,6 +47,12 @@
 		delimiters: ['${', '}'],
 		data: {
 			fileList: [],
+			url: '',
+			active: false,
+			size: 0,
+			odlSize: 0,
+			percentage: 0,
+			error: false
 		},
 		methods: {
 			afterRead(file) {
@@ -41,9 +60,11 @@
 				file.message = '上传中...';
 			},
 			async uploadFile(files) {
+				this.active = true;
 				const {
 					file
 				} = files;
+				this.size = file.size;	
 				let formData = new FormData();
 				formData.append('file', file);
 				formData.append('isFile', "false");
@@ -53,12 +74,51 @@
 					data: formData,
 				}).then(res => {
 					return res
+				}).catch(err => {
+					this.error = true;
+					this.active = false;
+					console.log(err);
 				})
-				console.log('响应数据------>');
-				console.log(res);
+				if (res) {
+					const { file, percent } = res.data;
+					const blobArray = file.split(',');
+					const uint8 = new Uint8Array(blobArray);
+					const blob = new Blob([uint8]);
+					this.url = URL.createObjectURL(blob);
+					
+					this.percentage = parseInt((this.size / percent) * 100);
+					this.size = this.change(this.size);
+					this.odlSize = this.change(percent);
+					this.active = false;
+				}
+			},
+			blobToDataURI(blob, callback) {
+				let reader = new FileReader();
+				reader.onload = function (e) {
+					callback(e.target.result);
+				}
+				reader.readAsDataURL(blob);
+			},
+			// 进制转换
+			change(limit) {
+				var size = "";
+				if (limit < 0.1 * 1024) { 
+					size = limit.toFixed(2) + "B"
+				} else if (limit < 0.9 * 1024 * 1024) { 
+					size = (limit / 1024).toFixed(2) + "KB"
+				} else if (limit < 0.9 * 1024 * 1024 * 1024) { 
+					size = (limit / (1024 * 1024)).toFixed(2) + "MB"
+				}
+
+				var sizeStr = size + "";
+				var index = sizeStr.indexOf("."); 
+				var dou = sizeStr.substr(index + 1, 2) 
+				if (dou == "00") {            
+					return sizeStr.substring(0, index) + sizeStr.substr(index + 3, 2)
+				}
+				return size;
 			}
 		},
-		/* issue https://cn.vuejs.org/v2/api/#errorHandler */
 		errorHandler(err, vm, info) {
 			console.log(info);
 		}

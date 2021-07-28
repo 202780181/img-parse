@@ -29,6 +29,18 @@ $ npm run dev
 
 **使用提示 :** `5-7MB 大小文件平均响应时间为 ~5s 左右;请添加try catch 捕获可能发生的异常情况。`
 
+## 错误类型  
+	[.jpg  .jpeg  .jpeg  .png  .gif] -- 受支持
+	
+	其他格式格式文件上传匀返回(400 Bad request)
+
+
+## 测试地址
+
+
+[https://img.gitbycode.cn/test/upload](https://img.gitbycode.cn/test/upload)
+	
+
 
 ## 关于此文档
 

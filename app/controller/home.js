@@ -6,14 +6,14 @@ const Controller = require('egg').Controller;
 
 class HomeController extends Controller {
 	async index() {
-		const {
-			ctx
-		} = this;
-		await ctx.render('docs/index');
+		const {	ctx	} = this;
+		ctx.redirect(`http://47.243.197.199:3000`);
+		// ctx.body = await service.home.index();
 	}
 
 	/**
 	 * http request API
+	 * mounted request
 	 */
 	async upload() {
 		const {

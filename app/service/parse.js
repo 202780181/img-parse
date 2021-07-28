@@ -9,18 +9,19 @@ const {
 
 /* */
 class ImageParseService extends Service {
-	async compress(fileUrl, isStream) {
+	async compress(fileObj, isStream) {
 		const {
 			ctx
 		} = this;
 		isStream = Boolean(isStream);
+		const { url } = fileObj;
 		const imagePool = new ImagePool();
 		let result = {
 			file: null,
 		};
 		if (ctx.get('Content-Type').startsWith('multipart/')) {
 
-			const image = imagePool.ingestImage(fileUrl);
+			const image = imagePool.ingestImage(url);
 			await image.decoded;
 			const preprocessOptions = {};
 			const encodeOptions = {
@@ -32,10 +33,12 @@ class ImageParseService extends Service {
 			await image.preprocess(preprocessOptions);
 			await image.encode(encodeOptions);
 			const rawEncodedImage = (await image.encodedWith.mozjpeg).binary;
+			const oldSize = rawEncodedImage.length;
 			await imagePool.close();
 			if (isStream) {
 				result = {
-					file: rawEncodedImage,
+					file: rawEncodedImage.toString(),
+					percent: oldSize
 				};
 			} else {
 				result = {
@@ -44,8 +47,8 @@ class ImageParseService extends Service {
 			}
 		}
 		try {
-			await fs.unlinkSync(fileUrl);
-			ctx.logger.info('文件删除成功,删除路径:' + fileUrl);
+			await fs.unlinkSync(url);
+			ctx.logger.info('文件删除成功,删除路径:' + url);
 		} catch (err) {
 			ctx.logger.error('文件删除失败error:' + err);
 		}

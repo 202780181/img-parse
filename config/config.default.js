@@ -29,14 +29,16 @@ module.exports = appInfo => {
 		jsonLimit: '10mb',
 	};
 
-	// config.multipart = {
-	//   mode: 'file',
-	// };
-
 	// add response header gzip
 	config.gzip = {
 		threshold: 1024, // 小于 1k 的响应体不压缩
 	};
+	config.whitelist = [
+		'.jpg', 
+		'.jpeg', 
+		'.png', 
+		'.webp',
+	],
 	// close csrf security
 	config.security = {
 		csrf: {
@@ -67,6 +69,7 @@ module.exports = appInfo => {
 		// myAppName: 'egg',
 	};
 
+  
 	return {
 		...config,
 		...userConfig,
