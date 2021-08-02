@@ -86,7 +86,7 @@
 					const blob = new Blob([uint8]);
 					this.url = URL.createObjectURL(blob);
 					
-					this.percentage = parseInt((this.size / percent) * 100);
+					this.percentage = parseInt(100 - (percent / this.size ) * 100);
 					this.size = this.change(this.size);
 					this.odlSize = this.change(percent);
 					this.active = false;

@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const Controller = require('egg').Controller;
 const sendToWormhole = require('stream-wormhole');
+const matchPattern = require('../util/index');
 
 /* control class */
 class ImageParse extends Controller {
@@ -28,10 +29,10 @@ class ImageParse extends Controller {
 				}
 				const date = new Date().getTime();
 				const filename = encodeURIComponent(part.filename);
-				const target = path.join(config.baseDir, 'app/public', date + filename);
-				result = await new Promise((resolve, reject) => {
+				const target = path.join(config.baseDir, 'app/public', date + filename);	
+				result = await new Promise(async (resolve, reject) => {
 					// 创建文件写入流
-					const remoteFileStrem = fs.createWriteStream(target);
+					const remoteFileStrem = await fs.createWriteStream(target);
 					// 以管道方式写入流
 					part.pipe(remoteFileStrem);
 
@@ -63,7 +64,16 @@ class ImageParse extends Controller {
 		ctx.logger.info('file writeStream success: ', param);
 		ctx.logger.info('file writeStream result: ', result);
 		const isStream = param.isFile || true;
-		ctx.body = await service.parse.compress(result, isStream);
+	
+		if(!matchPattern(result.filename)) {
+			fs.unlinkSync(result.url);
+			ctx.body = {
+				err: "仅受支持的格式: ['.jpg','.jpeg','.png','.webp']; 不推荐压缩webp图片,可能会导致压缩变大.",
+			};
+			ctx.set('content-Type','application/json');
+		} else {
+			ctx.body = await service.parse.compress(result, isStream);
+		}
 		// ctx.set('content-Type','application/octet-stream')
 	}
 }
