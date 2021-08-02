@@ -7,7 +7,7 @@ const Controller = require('egg').Controller;
 class HomeController extends Controller {
 	async index() {
 		const {	ctx	} = this;
-		ctx.redirect(`http://47.243.197.199:3000`);
+		ctx.redirect(`http://47.243.197.199:4000`);
 		// ctx.body = await service.home.index();
 	}
 

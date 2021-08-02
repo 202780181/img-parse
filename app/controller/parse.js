@@ -29,7 +29,7 @@ class ImageParse extends Controller {
 				const date = new Date().getTime();
 				const filename = encodeURIComponent(part.filename);
 				const target = path.join(config.baseDir, 'app/public', date + filename);
-				result = new Promise((resolve, reject) => {
+				result = await new Promise((resolve, reject) => {
 					// 创建文件写入流
 					const remoteFileStrem = fs.createWriteStream(target);
 					// 以管道方式写入流
@@ -60,11 +60,11 @@ class ImageParse extends Controller {
 		}
 
 		console.log('参数解析完毕！');
-		console.log(result);
 		ctx.logger.info('file writeStream success: ', param);
+		ctx.logger.info('file writeStream result: ', result);
 		const isStream = param.isFile || true;
 		ctx.body = await service.parse.compress(result, isStream);
-		// ctx.set('')
+		// ctx.set('content-Type','application/octet-stream')
 	}
 }
 

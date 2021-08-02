@@ -5,7 +5,7 @@
 module.exports = () => {
   return {
     logger: {
-      dir: '/logs',
+      dir: '/root/img-parse/logs',
     },
   };
 };

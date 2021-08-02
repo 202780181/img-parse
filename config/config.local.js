@@ -4,7 +4,7 @@
 module.exports = () => {
   return {
     logger: {
-      dir: '/Users/aaron/logs/image-parse-logs',
+      dir: '/Users/aaron/WebstormProjects/img-parse/logs',
     },
     webpack: {
       enable: true,
