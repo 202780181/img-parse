@@ -40,6 +40,16 @@
 <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.14/vue.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/vant/2.12.24/vant.min.js"></script>
+<script
+		src="https://browser.sentry-cdn.com/6.11.0/bundle.min.js"
+		integrity="sha384-c+8PXtRnYfCKsSEvgtDqFeJvhjltkNLIUB1vcWKW4EleABoS4jh87UrE+1nQXg+g"
+		crossorigin="anonymous"
+></script>
+<script
+		src="https://browser.sentry-cdn.com/6.11.0/bundle.tracing.min.js"
+		integrity="sha384-XuDodOP4mgLWA8eRlqZJWs+mtmznHF6ES/nOotK0fE7SHjj0Ec3YMVIzjh5ytsKH"
+		crossorigin="anonymous"
+></script>
 <script>
 	Vue.prototype.$axios = axios;
 	var app = new Vue({
@@ -64,7 +74,7 @@
 				const {
 					file
 				} = files;
-				this.size = file.size;	
+				this.size = file.size;
 				let formData = new FormData();
 				formData.append('file', file);
 				formData.append('isFile', "false");
@@ -85,7 +95,7 @@
 					const uint8 = new Uint8Array(blobArray);
 					const blob = new Blob([uint8]);
 					this.url = URL.createObjectURL(blob);
-					
+
 					this.percentage = parseInt(100 - (percent / this.size ) * 100);
 					this.size = this.change(this.size);
 					this.odlSize = this.change(percent);
@@ -102,18 +112,18 @@
 			// 进制转换
 			change(limit) {
 				var size = "";
-				if (limit < 0.1 * 1024) { 
+				if (limit < 0.1 * 1024) {
 					size = limit.toFixed(2) + "B"
-				} else if (limit < 0.9 * 1024 * 1024) { 
+				} else if (limit < 0.9 * 1024 * 1024) {
 					size = (limit / 1024).toFixed(2) + "KB"
-				} else if (limit < 0.9 * 1024 * 1024 * 1024) { 
+				} else if (limit < 0.9 * 1024 * 1024 * 1024) {
 					size = (limit / (1024 * 1024)).toFixed(2) + "MB"
 				}
 
 				var sizeStr = size + "";
-				var index = sizeStr.indexOf("."); 
-				var dou = sizeStr.substr(index + 1, 2) 
-				if (dou == "00") {            
+				var index = sizeStr.indexOf(".");
+				var dou = sizeStr.substr(index + 1, 2)
+				if (dou == "00") {
 					return sizeStr.substring(0, index) + sizeStr.substr(index + 3, 2)
 				}
 				return size;
@@ -123,6 +133,17 @@
 			console.log(info);
 		}
 	})
+
+	Sentry.init({
+		dsn: "https://examplePublicKey@o0.ingest.sentry.io/0",
+		// this assumes your build process sets "npm_package_version" in the env
+		release: "my-project-name@" + process.env.npm_package_version,
+		integrations: [new Sentry.Integrations.BrowserTracing()],
+
+		// We recommend adjusting this value in production, or using tracesSampler
+		// for finer control
+		tracesSampleRate: 1.0,
+	});
 </script>
 
 </html>

@@ -71,7 +71,7 @@ class ImageParse extends Controller {
 				err: "仅受支持的格式: ['.jpg','.jpeg','.png','.webp']; 不推荐压缩webp图片,可能会导致压缩变大.",
 			};
 			ctx.set('content-Type','application/json');
-		} else {
+		} else {	
 			ctx.body = await service.parse.compress(result, isStream);
 		}
 		// ctx.set('content-Type','application/octet-stream')
